@@ -83,6 +83,25 @@ def test_signup_returns_400_for_duplicate_registration():
     }
 
 
+def test_signup_returns_400_when_activity_is_full():
+    # Arrange
+    activity_name = "Chess Club"
+    activity = app_module.activities[activity_name]
+
+    while len(activity["participants"]) < activity["max_participants"]:
+        activity["participants"].append(
+            f"student{len(activity['participants'])}@mergington.edu"
+        )
+
+    email = "late.student@mergington.edu"
+
+    # Act
+    response = client.post(f"/activities/{activity_name}/signup", params={"email": email})
+
+    # Assert
+    assert response.status_code == 400
+    assert response.json() == {"detail": f"{activity_name} is full"}
+
 def test_unregister_removes_existing_participant_from_activity():
     # Arrange
     activity_name = "Chess Club"
